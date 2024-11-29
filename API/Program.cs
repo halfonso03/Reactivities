@@ -17,6 +17,15 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy",
+        policy =>
+        {
+            policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -28,8 +37,9 @@ if (app.Environment.IsDevelopment())
 
 //app.UseHttpsRedirection();
 
-app.UseAuthorization();
 
+app.UseCors("CorsPolicy");
+app.UseAuthorization();
 app.MapControllers();
 
 using var scope = app.Services.CreateScope();
