@@ -1,54 +1,47 @@
-import React from 'react';
-import {
-  CardMeta,
-  CardHeader,
-  CardDescription,
-  CardContent,
-  Card,
-  Image,
-  Button,
-} from 'semantic-ui-react';
-import { Activity } from '../../../app/models/activity';
+/* eslint-disable react-refresh/only-export-components */
+import { useEffect } from 'react';
+import { Grid } from 'semantic-ui-react';
 
-interface Props {
-  activity: Activity | undefined;
-  cancelSelectActivity: () => void;
-  openForm: (id: string) => void;
-}
+import { useStore } from '../../../app/stores/store';
+import { useParams } from 'react-router-dom';
+import { observer } from 'mobx-react-lite';
+import LoadingComponent from '../../../app/layout/LoadingComponent';
 
-export default function ActivityDetails({
-  activity,
-  cancelSelectActivity,
-  openForm,
-}: Props) {
-  if (!activity) return null;
+import ActivityFilters from '../dashboard/ActivityFilters';
+import ActivityDetailedChat from './ActivityDetailedChat';
+import ActivityDetailedHeader from './ActivityDetailedHeader';
+import ActivityDetailedInfo from './ActivityDetailedInfo';
+import ActivityDetailedSidebar from './ActivityDetailedSidebar';
+
+export default observer(function ActivityDetails() {
+  const { activityStore } = useStore();
+  const { id } = useParams();
+
+  const {
+    selectedActivity: activity,
+    loadActivity,
+    loadingInitial,
+  } = activityStore;
+
+  useEffect(() => {
+    if (id) {
+      loadActivity(id);
+    }
+  }, [id, loadActivity]);
+
+  if (loadingInitial || !activity) return <LoadingComponent></LoadingComponent>;
 
   return (
-    <Card fluid>
-      <Image src={`/assets/categoryImages/${activity.category}.jpg`} />
-      <CardContent>
-        <CardHeader>{activity.title}</CardHeader>
-        <CardMeta>
-          <span>{activity.date}</span>
-        </CardMeta>
-        <CardDescription>{activity.description}</CardDescription>
-      </CardContent>
-      <CardContent extra>
-        <Button.Group widths="2">
-          <Button
-            basic
-            color="blue"
-            content="Edit"
-            onClick={() => openForm(activity.id)}
-          ></Button>
-          <Button
-            basic
-            color="grey"
-            content="Cancel"
-            onClick={cancelSelectActivity}
-          ></Button>
-        </Button.Group>
-      </CardContent>
-    </Card>
+    <Grid>
+      <Grid.Column width={10}>
+        <ActivityDetailedHeader activity={activity}></ActivityDetailedHeader>
+        <ActivityDetailedInfo activity={activity}></ActivityDetailedInfo>
+        <ActivityDetailedChat></ActivityDetailedChat>
+      </Grid.Column>
+      <Grid.Column width={6}>
+        <ActivityDetailedSidebar></ActivityDetailedSidebar>
+        <ActivityFilters></ActivityFilters>
+      </Grid.Column>
+    </Grid>
   );
-}
+});

@@ -1,7 +1,5 @@
 using API.Extensions;
-using Application.Activities;
-using Application.Core;
-using Microsoft.AspNetCore.Identity;
+using API.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -17,14 +15,14 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
-{
+{    
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 //app.UseHttpsRedirection();
 
-
+app.UseMiddleware(typeof(ExceptionHandlingMiddleware));
 app.UseCors("CorsPolicy");
 app.UseAuthorization();
 app.MapControllers();

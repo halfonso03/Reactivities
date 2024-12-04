@@ -1,21 +1,27 @@
-import React, { ChangeEvent, useState } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { ChangeEvent, useEffect, useState } from 'react';
 import { Button, Form, Segment } from 'semantic-ui-react';
+import { v4 as uuid } from 'uuid';
+import { useStore } from '../../../app/stores/store';
+import { observer } from 'mobx-react-lite';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import LoadingComponent from '../../../app/layout/LoadingComponent';
 import { Activity } from '../../../app/models/activity';
 
-interface Props {
-  activity: Activity | undefined;
-  closeForm: () => void;
-  createOrEdit: (activity: Activity) => void;
-  submitting: boolean;
-}
+export default observer(function ActivityForm() {
+  const { activityStore } = useStore();
+  const {
+    createActivity,
+    updateActivity,
+    loading,
+    loadActivity,
+    loadingInitial,
+  } = activityStore;
+  const navigate = useNavigate();
 
-export default function ActivityForm({
-  activity: selectedActivity,
-  closeForm,
-  createOrEdit,
-  submitting
-}: Props) {
-  const initialState = selectedActivity ?? {
+  const { id } = useParams();
+
+  const [activity, setActivity] = useState<Activity>({
     id: '',
     title: '',
     category: '',
@@ -23,14 +29,31 @@ export default function ActivityForm({
     date: '',
     city: '',
     venue: '',
-  };
+  });
 
-  const [activity, setActivity] = useState(initialState);
+  useEffect(() => {
+    if (id) {
+      loadActivity(id).then((a) => {
+        console.log(a);
+        setActivity(a!);
+      });
+    }
+  }, [id, loadActivity]);
 
-  function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    createOrEdit(activity);
-    console.log(activity);
+  if (loadingInitial)
+    return <LoadingComponent content="Loading activity..."></LoadingComponent>;
+
+  function handleSubmit() {
+    if (!activity.id) {
+      activity.id = uuid();
+      createActivity(activity).then(() =>
+        navigate(`/activities/${activity.id}`)
+      );
+    } else {
+      updateActivity(activity).then(() =>
+        navigate(`/activities/${activity.id}`)
+      );
+    }
   }
 
   function handleInputChange(
@@ -63,7 +86,7 @@ export default function ActivityForm({
         ></Form.Input>
         <Form.Input
           type="date"
-          placeholder="Date"          
+          placeholder="Date"
           defaultValue={activity.date}
           name="date"
           onChange={handleInputChange}
@@ -85,16 +108,17 @@ export default function ActivityForm({
           positive
           type="submit"
           content="Submit"
-          loading={submitting}
+          loading={loading}
         ></Button>
         <Button
           floated="right"
           positive
           type="button"
           content="Cancel"
-          onClick={closeForm}
+          as={Link}
+          to="/activities"
         ></Button>
       </Form>
     </Segment>
   );
-}
+});

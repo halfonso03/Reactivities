@@ -1,74 +1,28 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { SyntheticEvent, useState } from 'react';
-import { Activity } from '../../../app/models/activity';
-import { Button, Item, Label, Segment } from 'semantic-ui-react';
+/* eslint-disable react-refresh/only-export-components */
 
-interface Props {
-  activities: Activity[];
-  selectActivity: (id: string) => void;
-  deleteActivity: (id: string) => void;
-  submitting: boolean;
-  selectedActivity: Activity | undefined;
-}
+import { Header } from 'semantic-ui-react';
+import { useStore } from '../../../app/stores/store';
+import { observer } from 'mobx-react-lite';
+import ActivityListItem from './ActivityListItem';
+import { Fragment } from 'react/jsx-runtime';
 
-export default function ActivityList({
-  activities,
-  selectActivity,
-  deleteActivity,
-  submitting,
-  selectedActivity,
-}: Props) {
-  const [target, setTarget] = useState('');
-
-  function handleActivityDelete(e: SyntheticEvent<HTMLButtonElement>, id: string) {
-    setTarget(e.currentTarget.name);
-    deleteActivity(id);
-  }
+export default observer(function ActivityList() {
+  const { activityStore } = useStore();
+  const { groupedActivities } = activityStore;
 
   return (
     <>
-      <Segment>
-        <Item.Group divided>
-          {activities &&
-            activities.map((a: Activity) => (
-              <Item key={a.title}>
-                <Item.Content>
-                  <Item.Header as="a">{a.title}</Item.Header>
-                  <Item.Meta>{a.date}</Item.Meta>
-                  <Item.Description>
-                    <div>{a.description}</div>
-                    <div>
-                      {a.city}, {a.venue}
-                    </div>
-                  </Item.Description>
-                  <Item.Extra>
-                    <Button
-                      floated="right"
-                      content="View"
-                      color="blue"
-                      onClick={() => selectActivity(a.id)}
-                    ></Button>
-                    <Button
-                      name={a.id}
-                      floated="right"
-                      content="Delete"
-                      loading={target === a.id && submitting}
-                      color="red"
-                      onClick={(event) => {
-                        handleActivityDelete(event, a.id);
-                        // selectActivity(a.id);
-                        // console.log(a.id, selectedActivity?.id);
-                        // deleteActivity(a.id);
-                      }}
-                    ></Button>
-                    <Label basic content={a.category}></Label>
-                  </Item.Extra>
-                </Item.Content>
-              </Item>
-            ))}
-        </Item.Group>
-      </Segment>
+      {groupedActivities.map(([group, activities]) => (
+        <Fragment key={group}>
+          <Header sub color="teal">
+            {group}
+          </Header>
+
+          {activities.map((activity) => (
+            <ActivityListItem key={activity.id} activity={activity} />
+          ))}
+        </Fragment>
+      ))}
     </>
   );
-}
+});
