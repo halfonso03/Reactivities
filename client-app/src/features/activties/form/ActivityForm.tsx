@@ -1,12 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useEffect, useState } from 'react';
 import { Button, Header, Segment } from 'semantic-ui-react';
-import { v4 as uuid } from 'uuid';
 import { useStore } from '../../../app/stores/store';
 import { observer } from 'mobx-react-lite';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import LoadingComponent from '../../../app/layout/LoadingComponent';
-import { Activity } from '../../../app/models/activity';
+import {  ActivityFormValues } from '../../../app/models/activity';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import MyTextInput from '../../../app/common/form/MyTextInput';
@@ -14,29 +13,19 @@ import MyTextarea from '../../../app/common/form/MyTextarea';
 import MySelectInput from '../../../app/common/form/MySelectInput';
 import { categoryOptions } from '../../../app/common/options/categoryOptions';
 import MyDateInput from '../../../app/common/form/MyDateInput';
+import { v4 as uuid } from 'uuid';
 
 export default observer(function ActivityForm() {
   const { activityStore } = useStore();
-  const {
-    createActivity,
-    updateActivity,
-    loading,
-    loadActivity,
-    loadingInitial,
-  } = activityStore;
+  const { createActivity, updateActivity, loadActivity, loadingInitial } =
+    activityStore;
   const navigate = useNavigate();
 
   const { id } = useParams();
 
-  const [activity, setActivity] = useState<Activity>({
-    id: '',
-    title: '',
-    category: '',
-    description: '',
-    date: null,
-    city: '',
-    venue: '',
-  });
+  const [activity, setActivity] = useState<ActivityFormValues>(
+    new ActivityFormValues()
+  );
 
   const validation = Yup.object({
     title: Yup.string().required('Title is required'),
@@ -49,9 +38,8 @@ export default observer(function ActivityForm() {
 
   useEffect(() => {
     if (id) {
-      loadActivity(id).then((a) => {
-        console.log(a);
-        setActivity(a!);
+      loadActivity(id).then((activity) => {
+        setActivity(new ActivityFormValues(activity));
       });
     }
   }, [id, loadActivity]);
@@ -59,12 +47,18 @@ export default observer(function ActivityForm() {
   if (loadingInitial)
     return <LoadingComponent content="Loading activity..."></LoadingComponent>;
 
-  function handleFormSubmit(activity: Activity) {
+  function handleFormSubmit(activity: ActivityFormValues) {
     if (!activity.id) {
-      activity.id = uuid();
-      createActivity(activity).then(() =>
-        navigate(`/activities/${activity.id}`)
-      );
+      const newActivity = {
+        ...activity,
+        id: uuid(),
+      };
+
+      newActivity.category = newActivity.category.toLowerCase();
+
+      createActivity(newActivity).then(() => {
+        navigate(`/activities/${newActivity.id}`);
+      });
     } else {
       updateActivity(activity).then(() =>
         navigate(`/activities/${activity.id}`)
@@ -88,14 +82,7 @@ export default observer(function ActivityForm() {
         initialValues={activity}
         onSubmit={(values) => handleFormSubmit(values)}
       >
-        {({
-          values: activity,
-          handleChange,
-          handleSubmit,
-          isValid,
-          isSubmitting,
-          dirty,
-        }) => (
+        {({ handleSubmit, isValid, isSubmitting, dirty }) => (
           <Form onSubmit={handleSubmit} autoComplete="off" className="ui form">
             <MyTextInput name="title" placeholder="Title"></MyTextInput>
             <MyTextarea
@@ -122,7 +109,7 @@ export default observer(function ActivityForm() {
               positive
               type="submit"
               content="Submit"
-              loading={loading}
+              loading={isSubmitting}
               disabled={isSubmitting || !dirty || !isValid}
             ></Button>
             <Button
