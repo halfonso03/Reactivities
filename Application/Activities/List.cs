@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using Application.Core;
-using Domain;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Logging;
 using Persistence;
 
@@ -14,22 +11,24 @@ namespace Application.Activities
 {
     public class List
     {
-        public class Query : IRequest <Result<List<Activity>>>
+        public class Query : IRequest <Result<List<ActivityDto>>>
         {
 
         }
 
-        public class Handler : IRequestHandler<Query, Result<List<Activity>>>
+        public class Handler : IRequestHandler<Query, Result<List<ActivityDto>>>
         {
             private DataContext _context;
             public ILogger<List> _logger;
+            private readonly IMapper _mapper;
 
-            public Handler(DataContext context, ILogger<List> logger)
+            public Handler(DataContext context, IMapper mapper, ILogger<List> logger)
             {
+                _mapper = mapper;
                 _logger = logger;
                 _context = context;
             }
-            public async Task<Result<List<Activity>>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<List<ActivityDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
 
                 // try
@@ -48,9 +47,14 @@ namespace Application.Activities
                 // }
 
 
-                var activities = await _context.Activities.ToListAsync();
+                var activities = 
+                        await _context.Activities
+                                    .ProjectTo<ActivityDto>(_mapper.ConfigurationProvider)
+                                    .ToListAsync();
 
-                 return Result<List<Activity>>.Success(activities);
+                
+
+                return Result<List<ActivityDto>>.Success(activities);
             }
         }
     }

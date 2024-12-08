@@ -4,12 +4,21 @@ import { Activity } from './../app/models/activity';
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { router } from '../app/router/Routes';
 import { store } from '../app/stores/store';
+import { User, UserFormValues } from '../features/home/user';
 
 
 
 const sleep = (delay: number) => { return new Promise(resolve => setTimeout(resolve, delay)) }
 
 // middleware
+axios.interceptors.request.use(config => {
+    const token = store.commonStore.token;
+    if (token && config && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
 axios.interceptors.response.use(async response => {
 
     await sleep(1000);
@@ -25,7 +34,7 @@ axios.interceptors.response.use(async response => {
             if (config.method === 'get' && Object.prototype.hasOwnProperty.call(data.errors, 'id')) {
                 router.navigate('/not-found');
             }
-            
+
             if (data.errors) {
 
                 const modelStateErrors = [];
@@ -64,6 +73,7 @@ axios.interceptors.response.use(async response => {
 axios.defaults.baseURL = 'http://localhost:5000/api'
 
 
+
 const responseBody = <T>(response: AxiosResponse<T>) => response.data;
 
 const requests = {
@@ -84,8 +94,20 @@ const Activities = {
 }
 
 
+const Account = {
+    current: () => requests.get<User>('/account'),
+    // current: (token: string) => {
+    //     axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+    //     return requests.get<User>('/account');
+
+    // },
+    login: (user: UserFormValues) => requests.post<User>('/account/login', user),
+    register: (user: UserFormValues) => requests.post<User>('/account/register', user),
+}
+
 const agent = {
-    Activities
+    Activities,
+    Account
 }
 
 
