@@ -6,6 +6,7 @@ import { router } from '../app/router/Routes';
 import { store } from '../app/stores/store';
 import { UserFormValues } from '../features/home/user';
 import { User } from '../app/models/user';
+import { Photo, Profile } from '../app/models/profile';
 
 
 
@@ -107,9 +108,24 @@ const Account = {
     register: (user: UserFormValues) => requests.post<User>('/account/register', user),
 }
 
+const Profiles = {
+    get: (username: string) => requests.get<Profile>(`/profiles/${username}`),
+    uploadPhoto: (file: Blob) => {
+        const formData = new FormData();
+        formData.append('File', file);
+        return axios.post<Photo>('photos', formData, {
+            headers: { 'Content-type': 'multipart/form-data' }
+        })
+    },
+    setMainPhoto: (id: string) => requests.post(`/photos/${id}/setMain`, {}),
+    deletePhoto: (id: string) => requests.del(`/photos/${id}`)
+
+}
+
 const agent = {
     Activities,
-    Account
+    Account,
+    Profiles
 }
 
 

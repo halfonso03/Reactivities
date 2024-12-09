@@ -51,6 +51,13 @@ export default class UserStore {
         router.navigate('/activities');
     }
 
+    setImage(image: string) {
+        if (this.user) {
+            this.user.image = image;
+        }
+
+
+    }
 
     // useEffect(() => {
 
