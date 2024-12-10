@@ -6,7 +6,7 @@ import { router } from '../app/router/Routes';
 import { store } from '../app/stores/store';
 import { UserFormValues } from '../features/home/user';
 import { User } from '../app/models/user';
-import { Photo, Profile } from '../app/models/profile';
+import { Photo, Profile, ProfileFormValues } from '../app/models/profile';
 
 
 
@@ -23,7 +23,7 @@ axios.interceptors.request.use(config => {
 
 axios.interceptors.response.use(async response => {
 
-    await sleep(1000);
+   // await sleep(1000);
     return response;
 
 }, (error: AxiosError) => {
@@ -118,7 +118,8 @@ const Profiles = {
         })
     },
     setMainPhoto: (id: string) => requests.post(`/photos/${id}/setMain`, {}),
-    deletePhoto: (id: string) => requests.del(`/photos/${id}`)
+    deletePhoto: (id: string) => requests.del(`/photos/${id}`),
+    update: (profile: ProfileFormValues) => requests.put(`/profiles`, profile)
 
 }
 

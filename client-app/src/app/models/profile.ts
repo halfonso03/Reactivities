@@ -16,13 +16,30 @@ export class Profile implements IProfile {
     image?: string;
     bio?: string
     photos?: Photo[];
-    
+
     constructor(user: User) {
         this.username = user.username;
         this.displayName = user.displayName;
         this.image = user.image;
     }
 }
+
+
+export interface IProfileFormValues {
+    displayName: string;
+    bio: string
+}
+
+export class ProfileFormValues implements IProfileFormValues {
+
+    displayName: string = '';
+    bio: string = ''
+    constructor(displayName: string, bio: string) {
+        this.displayName = displayName;
+        this.bio = bio;
+    }
+}
+
 
 export interface Photo {
     id: string;
