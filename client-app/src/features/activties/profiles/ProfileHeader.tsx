@@ -1,13 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
-/* eslint-disable no-constant-condition */
 import {
-  Button,
   Divider,
   Grid,
   Header,
   Item,
-  Reveal,
-  RevealContent,
   Segment,
   Statistic,
   StatisticLabel,
@@ -16,12 +12,14 @@ import {
 import { Profile } from '../../../app/models/profile';
 
 import { observer } from 'mobx-react-lite';
+import FollowButton from './FollowButton';
 
 interface Props {
   profile: Profile;
 }
 
 export default observer(function ProfileHeader({ profile }: Props) {
+  console.log(profile);
   return (
     <Segment>
       <Grid>
@@ -43,28 +41,16 @@ export default observer(function ProfileHeader({ profile }: Props) {
         <Grid.Column width={4}>
           <Statistic.Group widths={2}>
             <Statistic>
-              <StatisticValue>42</StatisticValue>
-              <StatisticLabel>Following</StatisticLabel>
+              <StatisticValue>{profile.followersCount || 0}</StatisticValue>
+              <StatisticLabel>Followers</StatisticLabel>
             </Statistic>
             <Statistic>
-              <StatisticValue>5</StatisticValue>
-              <StatisticLabel>Followers</StatisticLabel>
+              <StatisticValue>{profile.followingCount || 0}</StatisticValue>
+              <StatisticLabel>Following</StatisticLabel>
             </Statistic>
           </Statistic.Group>
           <Divider></Divider>
-          <Reveal animated="move">
-            <RevealContent visible style={{ width: '100%' }}>
-              <Button fluid color="teal" content="Following"></Button>
-            </RevealContent>
-            <RevealContent hidden style={{ width: '100%' }}>
-              <Button
-                fluid
-                basic
-                color={1 == 1 ? 'red' : 'green'}
-                content={1 == 1 ? 'Unfollow' : 'Follow'}
-              ></Button>
-            </RevealContent>
-          </Reveal>
+          <FollowButton profile={profile}></FollowButton>
         </Grid.Column>
       </Grid>
     </Segment>

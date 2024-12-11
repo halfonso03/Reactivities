@@ -211,7 +211,7 @@ export default class ActivityStore {
                     this.selectedActivity.isGoing = false;
                 } else {
 
-                    const attendee = new Profile(user);
+                    const attendee = new Profile(user!);
                     this.selectedActivity?.attendees?.push(attendee);
                     this.selectedActivity!.isGoing = true;
                 }
@@ -229,6 +229,27 @@ export default class ActivityStore {
     clearSelectedActivity = () => {
         this.selectedActivity = undefined;
     }
+
+    updateAttendeeFollowing = (username: string) => {
+
+
+        this.activityRegistry.forEach(activity => {
+            activity.attendees.forEach(attendee => {
+                if (attendee.username == username) {
+                    if (attendee.following) {
+                        attendee.followersCount--;
+                    } else {
+                        attendee.followersCount++;
+                    }
+
+                    attendee.following = !attendee.following;
+                }
+            })
+        })
+    }
+
+
+
 
     private setActivity = (activity: Activity) => {
 

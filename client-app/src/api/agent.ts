@@ -10,7 +10,7 @@ import { Photo, Profile, ProfileFormValues } from '../app/models/profile';
 
 
 
-const sleep = (delay: number) => { return new Promise(resolve => setTimeout(resolve, delay)) }
+// const sleep = (delay: number) => { return new Promise(resolve => setTimeout(resolve, delay)) }
 
 // middleware
 axios.interceptors.request.use(config => {
@@ -23,7 +23,7 @@ axios.interceptors.request.use(config => {
 
 axios.interceptors.response.use(async response => {
 
-   // await sleep(1000);
+    // await sleep(1000);
     return response;
 
 }, (error: AxiosError) => {
@@ -119,8 +119,9 @@ const Profiles = {
     },
     setMainPhoto: (id: string) => requests.post(`/photos/${id}/setMain`, {}),
     deletePhoto: (id: string) => requests.del(`/photos/${id}`),
-    update: (profile: ProfileFormValues) => requests.put(`/profiles`, profile)
-
+    update: (profile: ProfileFormValues) => requests.put(`/profiles`, profile),
+    updateFollowing: (username: string) => requests.post(`/follow/${username}`, {}),
+    listFollowings: (username: string, predicate: string) => requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`)
 }
 
 const agent = {

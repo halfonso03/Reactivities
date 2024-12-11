@@ -1,5 +1,6 @@
 
 using Application.Core;
+using Application.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -21,9 +22,11 @@ namespace Application.Activities
             private DataContext _context;
             public ILogger<List> _logger;
             private readonly IMapper _mapper;
+        private readonly IUserAccessor _userAccessor;
 
-            public Handler(DataContext context, IMapper mapper, ILogger<List> logger)
+            public Handler(DataContext context, IMapper mapper, ILogger<List> logger, IUserAccessor userAccessor)
             {
+            _userAccessor = userAccessor;
                 _mapper = mapper;
                 _logger = logger;
                 _context = context;
@@ -49,7 +52,7 @@ namespace Application.Activities
 
                 var activities = 
                         await _context.Activities
-                                    .ProjectTo<ActivityDto>(_mapper.ConfigurationProvider)
+                                    .ProjectTo<ActivityDto>(_mapper.ConfigurationProvider, new {  currentUsername = _userAccessor.GetUsername() })
                                     .ToListAsync();
 
                 

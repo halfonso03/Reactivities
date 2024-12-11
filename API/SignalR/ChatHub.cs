@@ -19,7 +19,6 @@ namespace API.SignalR
             await Clients.Group(command.ActivityId.ToString())
                 .SendAsync("ReceiveComment", comment.Value);
         }
-
         public override async Task OnConnectedAsync()
         {
             var httpContext = Context.GetHttpContext();
