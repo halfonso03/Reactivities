@@ -7,10 +7,11 @@ import { store } from '../app/stores/store';
 import { UserFormValues } from '../features/home/user';
 import { User } from '../app/models/user';
 import { Photo, Profile, ProfileFormValues } from '../app/models/profile';
+import { PaginatedResult } from '../app/models/pagination';
 
 
 
-// const sleep = (delay: number) => { return new Promise(resolve => setTimeout(resolve, delay)) }
+const sleep = (delay: number) => { return new Promise(resolve => setTimeout(resolve, delay)) }
 
 // middleware
 axios.interceptors.request.use(config => {
@@ -23,7 +24,13 @@ axios.interceptors.request.use(config => {
 
 axios.interceptors.response.use(async response => {
 
-    // await sleep(1000);
+    await sleep(1000);
+
+    const pagination = response.headers["pagination"];
+    if (pagination) {
+        response.data = new PaginatedResult(response.data, JSON.parse(pagination));
+        return response as AxiosResponse<PaginatedResult<unknown>>;
+    }
     return response;
 
 }, (error: AxiosError) => {
@@ -87,7 +94,8 @@ const requests = {
 
 
 const Activities = {
-    list: () => requests.get<Activity[]>('/activities'),
+    list: (params: URLSearchParams) => axios.get<PaginatedResult<Activity[]>>('/activities', { params })
+        .then(responseBody),
     details: (id: string) => requests.get<Activity>(`/activities/${id}`),
     create: (activity: ActivityFormValues) => requests.post('/activities', activity),
     update: (activity: ActivityFormValues) => requests.put(`/activities/${activity.id}`, activity),
