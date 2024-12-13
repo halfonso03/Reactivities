@@ -1,5 +1,21 @@
+
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { User } from "./user";
+
+export interface IUserActivity {
+    id: number,
+    title: string,
+    category: string,
+    date: Date | null
+}
+
+export class UserActivity implements IUserActivity {
+    id = 0;
+    title = '';
+    category = '';
+    date: Date | null = null;
+
+}
 
 export interface IProfile {
     username: string;

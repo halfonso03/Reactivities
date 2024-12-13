@@ -40,22 +40,16 @@ namespace Application.Core
                         o => o.MapFrom(s => s.AppUser.Followers.Any(x => x.Observer.UserName == currentUsername)));
 
             CreateMap<AppUser, Profiles.Profile>()
-                .ForMember(d => d.Image, 
+                .ForMember(d => d.Image,
                         o => o.MapFrom(
                             s => s.Photos.FirstOrDefault(
                                 x => x.IsMain).Url))
-                .ForMember(d => d.FollowingCount, 
+                .ForMember(d => d.FollowingCount,
                         o => o.MapFrom(s => s.Followings.Count()))
-                .ForMember(d => d.FollowersCount, 
+                .ForMember(d => d.FollowersCount,
                         o => o.MapFrom(s => s.Followers.Count()))
-                .ForMember(d => d.Following, 
+                .ForMember(d => d.Following,
                         o => o.MapFrom(s => s.Followers.Any(x => x.Observer.UserName == currentUsername)));
-
-
-
-                // .ForMember(d => d.Following, 
-                //         o => o.MapFrom(s => s.Followings.Any(x => x.ObserverId == s.Id)))
-
 
             CreateMap<Comment, CommentDto>()
                 .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.Author.DisplayName))        
@@ -64,6 +58,12 @@ namespace Application.Core
                         o => o.MapFrom(
                             s => s.Author.Photos.FirstOrDefault(
                                 x => x.IsMain).Url));
+
+            CreateMap<ActivityAttendee, Profiles.UserActivityDto>()
+                .ForMember(d => d.Id, o => o.MapFrom(s => s.ActivityId))
+                .ForMember(d => d.Title, o => o.MapFrom(s => s.Activity.Title))
+                .ForMember(d => d.Category, o => o.MapFrom(s => s.Activity.Category))
+                .ForMember(d => d.Date, o => o.MapFrom(s => s.Activity.Date));
         }
     }
 }

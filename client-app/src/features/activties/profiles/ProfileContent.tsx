@@ -6,6 +6,7 @@ import { observer } from 'mobx-react-lite';
 import ProfileDetails from './ProfileDetails';
 import ProfileFollowings from './ProfileFollowings';
 import { useStore } from '../../../app/stores/store';
+import ProfileEvents from './ProfileEvents';
 
 interface Props {
   profile: Profile;
@@ -32,7 +33,14 @@ export default observer(function ProfileContent({ profile }: Props) {
         </Tab.Pane>
       ),
     },
-    { menuItem: 'Events', render: () => <Tab.Pane>Events Content</Tab.Pane> },
+    {
+      menuItem: 'Events',
+      render: () => (
+        <Tab.Pane>
+          <ProfileEvents></ProfileEvents>
+        </Tab.Pane>
+      ),
+    },
     {
       menuItem: 'Followers',
       render: () => (

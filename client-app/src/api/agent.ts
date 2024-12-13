@@ -6,7 +6,7 @@ import { router } from '../app/router/Routes';
 import { store } from '../app/stores/store';
 import { UserFormValues } from '../features/home/user';
 import { User } from '../app/models/user';
-import { Photo, Profile, ProfileFormValues } from '../app/models/profile';
+import { Photo, Profile, ProfileFormValues, UserActivity } from '../app/models/profile';
 import { PaginatedResult } from '../app/models/pagination';
 
 
@@ -129,7 +129,8 @@ const Profiles = {
     deletePhoto: (id: string) => requests.del(`/photos/${id}`),
     update: (profile: ProfileFormValues) => requests.put(`/profiles`, profile),
     updateFollowing: (username: string) => requests.post(`/follow/${username}`, {}),
-    listFollowings: (username: string, predicate: string) => requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`)
+    listFollowings: (username: string, predicate: string) => requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`),
+    listActivities: (username: string, predicate: string) => requests.get<UserActivity[]>(`/profiles/${username}/activities?predicate=${predicate}`)
 }
 
 const agent = {
