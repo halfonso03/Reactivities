@@ -8,6 +8,7 @@ import NotFound from '../../features/errors/NotFound';
 import ServerError from '../../features/errors/ServerError';
 import LoginForm from '../../features/users/LoginForm';
 import ProfilePage from '../../features/activties/profiles/ProfilePage';
+import RequireAuth from './RequireAuth';
 
 export const routes: RouteObject[] = [
   {
@@ -15,32 +16,37 @@ export const routes: RouteObject[] = [
     element: <App></App>,
     children: [
       {
-        path: 'activities',
-        element: <ActivityDashboard />,
-      },
-      {
-        path: 'createActivity',
-        element: <ActivityForm key="create" />,
-      },
-      {
-        path: 'manage/:id',
-        element: <ActivityForm key="manage" />,
-      },
-      {
-        path: 'profiles/:username',
-        element: <ProfilePage />,
-      },
-      {
-        path: 'login',
-        element: <LoginForm />,
-      },
-      {
-        path: 'activities/:id',
-        element: <ActivityDetails></ActivityDetails>,
-      },
-      {
-        path: 'errors',
-        element: <TestErrors />,
+        element: <RequireAuth></RequireAuth>,
+        children: [
+          {
+            path: 'activities',
+            element: <ActivityDashboard />,
+          },
+          {
+            path: 'createActivity',
+            element: <ActivityForm key="create" />,
+          },
+          {
+            path: 'manage/:id',
+            element: <ActivityForm key="manage" />,
+          },
+          {
+            path: 'profiles/:username',
+            element: <ProfilePage />,
+          },
+          {
+            path: 'login',
+            element: <LoginForm />,
+          },
+          {
+            path: 'activities/:id',
+            element: <ActivityDetails></ActivityDetails>,
+          },
+          {
+            path: 'errors',
+            element: <TestErrors />,
+          },
+        ],
       },
       {
         path: 'not-found',

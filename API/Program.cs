@@ -37,9 +37,13 @@ app.UseMiddleware(typeof(ExceptionHandlingMiddleware));
 app.UseCors("CorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseDefaultFiles(); // looks for default files i.e, index.html,...
+app.UseStaticFiles(); // serves from wwwroot folder
 app.MapControllers();
 
 app.MapHub<ChatHub>("/chat");
+app.MapFallbackToController("Index", "Fallback");
 
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;

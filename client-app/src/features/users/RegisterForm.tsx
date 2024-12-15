@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { ErrorMessage, Form, Formik } from 'formik';
 import MyTextInput from '../../app/common/form/MyTextInput';
-import { Button, Header, Label } from 'semantic-ui-react';
+import { Button, Header } from 'semantic-ui-react';
 import { useStore } from '../../app/stores/store';
 import { observer } from 'mobx-react-lite';
 import * as Yup from 'yup';
@@ -19,7 +19,7 @@ export default observer(function RegisterForm() {
         password: '',
         error: null,
       }}
-      onSubmit={(values, { setErrors, resetForm }) => {
+      onSubmit={(values, { setErrors }) => {
         userStore.register(values).catch((error) => {
           setErrors({ error });
           //resetForm();

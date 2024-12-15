@@ -3,8 +3,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardMeta,
-  Icon,
+
   Image,
   Segment,
   SegmentInline,
