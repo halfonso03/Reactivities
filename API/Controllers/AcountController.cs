@@ -24,9 +24,11 @@ namespace API.Controllers
         
         public UserManager<AppUser> _userManager;
         private TokenService _tokenService;
+        // private SignInManager<AppUser> _signInManager;
 
         public AccountController(UserManager<AppUser> userManager, TokenService tokenService)
         {
+            // _signInManager = signInManager;
             _tokenService = tokenService;
             _userManager = userManager;
             
@@ -38,6 +40,7 @@ namespace API.Controllers
         {
             var user = await _userManager.Users
                     .Include(x => x.Photos)
+                    .Include(r => r.RefreshTokens)
                     .FirstOrDefaultAsync(x => x.Email ==loginDto.Email);
 
             if (user == null)
@@ -49,6 +52,7 @@ namespace API.Controllers
 
             if (result)
             {
+                await SetRefreshToken(user);
                 return CreateUserObject(user);
             }
 
@@ -83,10 +87,35 @@ namespace API.Controllers
 
             if (result.Succeeded)
             {
+                await SetRefreshToken(user);
                 return CreateUserObject(user);
             }
 
             return BadRequest(result.Errors);
+        }
+
+        [Authorize]
+        [HttpPost("refreshToken")]
+        public async Task<ActionResult<UserDto>> RefreshToken()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+            var user = await _userManager.Users
+                        .Include(r => r.RefreshTokens)
+                        .Include(p => p.Photos)
+                        .FirstOrDefaultAsync(x => x.UserName == User.FindFirstValue(ClaimTypes.Name));
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var oldToken = user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken);
+
+            if (oldToken != null && !oldToken.IsActive) return Unauthorized();
+
+            if (oldToken != null) oldToken.Revoked = DateTime.UtcNow;
+
+            return CreateUserObject(user);
         }
 
 
@@ -99,7 +128,24 @@ namespace API.Controllers
                                 .Include(x => x.Photos)
                                 .FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
+            await SetRefreshToken(user);
             return CreateUserObject(user);
+        }
+
+
+        private async Task SetRefreshToken(AppUser user)
+        {
+            var refreshToekn = _tokenService.GenertRefreshToken();
+            user.RefreshTokens.Add(refreshToekn);
+            await _userManager.UpdateAsync(user);
+
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+
+            Response.Cookies.Append("refreshToken", refreshToekn.Token, cookieOptions);
         }
 
 
@@ -108,7 +154,7 @@ namespace API.Controllers
             var userDto = new UserDto
             {
                 DisplayName = user.DisplayName,
-                Image = "nophotos",
+                Image = user.Photos.FirstOrDefault(x=> x.IsMain)?.Url ?? "",
                 Token = _tokenService.CreateToken(user),
                 Username = user.UserName
             };
