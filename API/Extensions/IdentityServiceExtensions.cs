@@ -24,6 +24,7 @@ namespace API.Extensions
                 opt.SignIn.RequireConfirmedEmail = true;
             })
             .AddEntityFrameworkStores<DataContext>()
+            .AddSignInManager<SignInManager<AppUser>>()
             .AddDefaultTokenProviders();
 
 

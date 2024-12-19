@@ -9,6 +9,8 @@ import ServerError from '../../features/errors/ServerError';
 import LoginForm from '../../features/users/LoginForm';
 import ProfilePage from '../../features/activties/profiles/ProfilePage';
 import RequireAuth from './RequireAuth';
+import RegisterSuccess from '../../features/users/RegisterSuccess';
+import ConfirmEmail from '../../features/users/ConfirmEmail';
 
 export const routes: RouteObject[] = [
   {
@@ -17,6 +19,7 @@ export const routes: RouteObject[] = [
     children: [
       {
         element: <RequireAuth></RequireAuth>,
+
         children: [
           {
             path: 'activities',
@@ -53,12 +56,20 @@ export const routes: RouteObject[] = [
         element: <NotFound />,
       },
       {
-        path: '*',
-        element: <Navigate replace to="/not-found"></Navigate>,
-      },
-      {
         path: 'server-error',
         element: <ServerError></ServerError>,
+      },
+      {
+        path: 'account/registerSuccess',
+        element: <RegisterSuccess></RegisterSuccess>,
+      },
+      {
+        path: 'account/verifyEmail',
+        element: <ConfirmEmail></ConfirmEmail>,
+      },
+      {
+        path: '*',
+        element: <Navigate replace to="/not-found"></Navigate>,
       },
     ],
   },
